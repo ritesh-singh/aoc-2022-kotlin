@@ -5,28 +5,24 @@ import readInput
 fun main() {
 
     fun getMax(inputs: List<String>): Int {
-        var sum = 0
         return mutableListOf(0).apply {
             inputs.forEach { calorie ->
                 if (calorie.isBlank()) {
-                    this.add(sum)
-                    sum = 0
+                    this.add(0)
                 } else {
-                    sum += calorie.toInt()
+                    this[this.lastIndex] = this[this.lastIndex] + calorie.toInt()
                 }
             }
         }.max()
     }
 
     fun getFirstThreeMax(inputs: List<String>): Int {
-        var sum = 0
         return mutableListOf(0).apply {
             inputs.forEach { calorie ->
                 if (calorie.isBlank()) {
-                    this.add(sum)
-                    sum = 0
+                    this.add(0)
                 } else {
-                    sum += calorie.toInt()
+                    this[this.lastIndex] = this[this.lastIndex] + calorie.toInt()
                 }
             }
         }.sorted().takeLast(3).sum()
