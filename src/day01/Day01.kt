@@ -4,7 +4,7 @@ import readInput
 
 fun main() {
 
-    fun getMax(inputs: List<String>): Int {
+    fun getMax(firstNMax: Int, inputs: List<String>): Int {
         return mutableListOf(0).apply {
             inputs.forEach { calorie ->
                 if (calorie.isBlank()) {
@@ -13,24 +13,18 @@ fun main() {
                     this[this.lastIndex] = this[this.lastIndex] + calorie.toInt()
                 }
             }
-        }.max()
-    }
-
-    fun getFirstThreeMax(inputs: List<String>): Int {
-        return mutableListOf(0).apply {
-            inputs.forEach { calorie ->
-                if (calorie.isBlank()) {
-                    this.add(0)
-                } else {
-                    this[this.lastIndex] = this[this.lastIndex] + calorie.toInt()
-                }
+        }.let {
+            if (firstNMax == 1) {
+                it.max()
+            } else {
+                it.sorted().takeLast(3).sum()
             }
-        }.sorted().takeLast(3).sum()
+        }
     }
 
-    fun part1(input: List<String>): Int = getMax(input)
+    fun part1(input: List<String>): Int = getMax(1, input)
 
-    fun part2(input: List<String>): Int = getFirstThreeMax(input)
+    fun part2(input: List<String>): Int = getMax(3, input)
 
     val input = readInput("/day01/Day01")
     println(part1(input))
