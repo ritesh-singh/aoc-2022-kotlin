@@ -10,7 +10,7 @@ fun main() {
                 if (calorie.isBlank()) {
                     this.add(0)
                 } else {
-                    this[this.lastIndex] = this[this.lastIndex] + calorie.toInt()
+                    this[lastIndex] += calorie.toInt()
                 }
             }
         }.let {
