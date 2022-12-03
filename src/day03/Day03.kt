@@ -9,14 +9,14 @@ fun main() {
     fun part1(input: List<String>): Int {
         return input.sumOf { item ->
             val (first, second) = item.chunked(item.length / 2)
-            val matchedChar = first.toCharArray().intersect(second.toSet()).first()
+            val matchedChar = first.toSet().intersect(second.toSet()).first()
             matchedChar.priority()
         }
     }
 
     fun part2(input: List<String>): Int {
         return input.chunked(3).sumOf { items ->
-            val matchedChar = items[0].toCharArray().intersect(items[1].toSet()).intersect(items[2].toSet()).first()
+            val matchedChar = items[0].toSet().intersect(items[1].toSet()).intersect(items[2].toSet()).first()
             matchedChar.priority()
         }
     }
