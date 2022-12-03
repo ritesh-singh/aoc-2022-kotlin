@@ -8,17 +8,18 @@ fun main() {
 
     fun part1(input: List<String>): Int {
         return input.sumOf { item ->
-            val (first, second) = item.chunked(item.length / 2)
-            val matchedChar = first.toSet().intersect(second.toSet()).first()
-            matchedChar.priority()
+            item.chunked(item.length / 2)
+                .map { it.toSet() }
+                .reduce { first, second -> first.intersect(second) }
+                .first().priority()
         }
     }
 
     fun part2(input: List<String>): Int {
-        return input.chunked(3).sumOf { items ->
-            val matchedChar = items[0].toSet().intersect(items[1].toSet()).intersect(items[2].toSet()).first()
-            matchedChar.priority()
-        }
+        return input.map { it.toSet() }
+            .chunked(3)
+            .map { it.reduce { first, second -> first.intersect(second) } }
+            .sumOf { it.first().priority() }
     }
 
     val input = readInput("/day03/Day03")
