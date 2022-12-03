@@ -4,28 +4,20 @@ import readInput
 
 fun main() {
 
-    val hashMapSmall = hashMapOf<Char,Int>()
-    for (i in 0..26) {
-        hashMapSmall['a' + i] = i + 1
-    }
-
-    val hashMapBig = hashMapOf<Char,Int>()
-    for (i in 0..26) {
-        hashMapBig['A' + i] = i + 27
-    }
+    fun Char.priority() = if (isUpperCase()) this - 'A' + 27 else this - 'a' + 1
 
     fun part1(input: List<String>): Int {
         return input.sumOf { item ->
             val (first, second) = item.chunked(item.length / 2)
             val matchedChar = first.toCharArray().intersect(second.toSet()).first()
-            (hashMapSmall[matchedChar] ?: hashMapBig[matchedChar])!!
+            matchedChar.priority()
         }
     }
 
     fun part2(input: List<String>): Int {
         return input.chunked(3).sumOf { items ->
             val matchedChar = items[0].toCharArray().intersect(items[1].toSet()).intersect(items[2].toSet()).first()
-            (hashMapSmall[matchedChar] ?: hashMapBig[matchedChar])!!
+            matchedChar.priority()
         }
     }
 
