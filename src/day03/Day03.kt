@@ -15,28 +15,18 @@ fun main() {
     }
 
     fun part1(input: List<String>): Int {
-        var sum = 0
-        input.forEach { items ->
-            val first = items.substring(0 until items.length / 2)
-            val second = items.substring(items.length / 2 until items.length)
-
-            val char = first.toCharArray().intersect(second.toSet()).first()
-            sum += (hashMapSmall[char] ?: hashMapBig[char])!!
+        return input.sumOf { item ->
+            val (first, second) = item.chunked(item.length / 2)
+            val matchedChar = first.toCharArray().intersect(second.toSet()).first()
+            (hashMapSmall[matchedChar] ?: hashMapBig[matchedChar])!!
         }
-
-        return sum
     }
 
-
     fun part2(input: List<String>): Int {
-        var sum = 0
-        var i = 0
-        while (i < input.size){
-            val char = input[i++].toCharArray().intersect(input[i++].toSet()).intersect(input[i++].toSet()).first()
-            sum += (hashMapSmall[char] ?: hashMapBig[char])!!
+        return input.chunked(3).sumOf { items ->
+            val matchedChar = items[0].toCharArray().intersect(items[1].toSet()).intersect(items[2].toSet()).first()
+            (hashMapSmall[matchedChar] ?: hashMapBig[matchedChar])!!
         }
-
-        return sum
     }
 
     val input = readInput("/day03/Day03")
