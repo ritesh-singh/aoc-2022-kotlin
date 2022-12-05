@@ -27,7 +27,7 @@ If you're stuck with Kotlin-specific questions or anything related to this templ
 
 # 🎄 Advent of Code 2022
 
-Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.rust-lang.org/).
+Solutions for [Advent of Code](https://adventofcode.com/)
 
 <!--- advent_readme_stars table --->
 ## 2022 Results
