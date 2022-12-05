@@ -25,8 +25,6 @@ If you're stuck with Kotlin-specific questions or anything related to this templ
 [template]: https://github.com/kotlin-hands-on/advent-of-code-kotlin-template
 
 
-<img src="./.assets/christmas_ferris.png" width="164">
-
 # 🎄 Advent of Code 2022
 
 Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.rust-lang.org/).
