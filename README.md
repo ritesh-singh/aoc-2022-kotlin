@@ -4,7 +4,7 @@ Welcome to the Advent of Code[^aoc] Kotlin project created by [ritesh-singh][git
 
 In this repository, ritesh-singh is about to provide solutions for the puzzles using [Kotlin][kotlin] language.
 
-If you're stuck with Kotlin-specific questions or anything related to this template, check out the following resources:
+If you'r7e stuck with Kotlin-specific questions or anything related to this template, check out the following resources:
 
 - [Kotlin docs][docs]
 - [Kotlin Slack][slack]
@@ -40,4 +40,5 @@ Solutions for [Advent of Code](https://adventofcode.com/)
 | [Day 4](https://adventofcode.com/2022/day/4) | ⭐ | ⭐ |
 | [Day 5](https://adventofcode.com/2022/day/5) | ⭐ | ⭐ |
 | [Day 6](https://adventofcode.com/2022/day/6) | ⭐ | ⭐ |
+| [Day 7](https://adventofcode.com/2022/day/7) | ⭐ | ⭐ |
 <!--- advent_readme_stars table --->
