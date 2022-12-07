@@ -34,7 +34,6 @@ fun main() {
     var rootNode: MyNode? = null
     var currentDir: MyNode? = null
 
-
     fun addFileInCurrentDirectory(fileSize: String, fileName: String) {
         if (currentDir == null) return
         currentDir!!.child.push(
@@ -49,10 +48,8 @@ fun main() {
 
         // add the file size to parent dirs
         var tempDir:MyNode? = currentDir?.parent
-        while (tempDir != null){
-            if (tempDir.type == NodeType.DIR){
-                tempDir.size = tempDir.size + fileSize.toLong()
-            }
+        while (tempDir != null && tempDir.type == NodeType.DIR){
+            tempDir.size = tempDir.size + fileSize.toLong()
             tempDir = tempDir.parent
         }
     }
@@ -108,7 +105,7 @@ fun main() {
         }
     }
 
-    fun part1(input: List<String>): Long {
+    fun initTree(input: List<String>) {
         tree.clear()
         rootNode = null
         currentDir = null
@@ -138,7 +135,10 @@ fun main() {
                 )
             }
         }
+    }
 
+    fun part1(input: List<String>): Long {
+        initTree(input)
 
         val list = mutableListOf<Long>()
         val tempRootNode = rootNode
@@ -163,36 +163,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
-        tree.clear()
-        rootNode = null
-        currentDir = null
-        input.forEach {
-            val lineInput = it.split(" ").map { it.trim() }
-            if (lineInput[0].isCommand()) {
-                when {
-                    lineInput[1].isCd() -> {
-                        val navigateTo = lineInput[2]
-                        navigateToInTree(navigateTo)
-                    }
-
-                    lineInput[1].isLs() -> {
-                        // do nothing as of now
-                    }
-                }
-            } else if (lineInput[0].isDir()) {
-                // add directory in current node
-                addDirectoryInCurrentNode(lineInput[1])
-            } else {
-                // it's a file
-                val fileSize = lineInput[0]
-                val fileName = lineInput[1]
-                addFileInCurrentDirectory(
-                    fileSize = fileSize,
-                    fileName = fileName
-                )
-            }
-        }
-
+        initTree(input)
 
         val list = mutableListOf<Long>()
         val tempRootNode = rootNode
@@ -216,21 +187,11 @@ fun main() {
 
         val unusedSpace:Long = 70000000 - rootNode!!.size
         val needed = 30000000 - unusedSpace
-        list.sort()
-        var answer = 0L
-        for (value in list) {
-            if (value >= needed){
-                answer = value
-                break
-            }
-        }
-
-        return answer
+        return list.sorted().find { it >= needed }!!
     }
 
 
     val input = readInput("/day07/Day07")
-    println(part1(input))
-    println(part2(input))
-
+    check(part1(input) == 1350966L)
+    check(part2(input) == 6296435L)
 }
