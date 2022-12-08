@@ -95,7 +95,7 @@ fun main() {
         val matrix = Array(rowSize) { IntArray(colSize) }
         input.initMatrix(matrix)
 
-        val listOfScores = mutableListOf<Int>()
+        var answer = Int.MIN_VALUE
         for (row in 1 until rowSize - 1) {
             for (col in 1 until colSize - 1) {
                 val currentHeight = matrix[row][col]
@@ -125,10 +125,11 @@ fun main() {
                     if (matrix[bottom][col] >= currentHeight) break
                 }
 
-                listOfScores.add(leftScore * rightScore * topScore * bottomScore)
+                val totalScore = leftScore * rightScore * topScore * bottomScore
+                if (totalScore > answer) answer = totalScore
             }
         }
-        return listOfScores.maxOf { it }
+        return answer
     }
 
     val input = readInput("/day08/Day08")
