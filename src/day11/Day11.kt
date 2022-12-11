@@ -36,7 +36,7 @@ fun main() {
         }
     }
 
-    fun solve2(input: List<String>, part1:Boolean): Long {
+    fun solve(input: List<String>, part1:Boolean): Long {
         val monkeys = buildMonkey(input)
         val modBy = monkeys.map { it.divBy }.reduce { a, b -> a * b }
 
@@ -75,6 +75,6 @@ fun main() {
     }
 
     val input = readInput("/day11/Day11")
-    println(solve2(input, true))
-    println(solve2(input, false))
+    println(solve(input, true))
+    println(solve(input, false))
 }
