@@ -55,8 +55,6 @@ fun main() {
                     } else {
                         worryLevel %= modBy
                     }
-
-                    worryLevel %= modBy
                     val throwTo = if (worryLevel % monkey.divBy == 0L) {
                         monkey.throwWhenTrue
                     } else {
