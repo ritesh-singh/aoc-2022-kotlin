@@ -26,7 +26,7 @@ fun main() {
             }
         }
     }
-    
+
     fun findShortestPath(srcDest: RowCol, grid: Array<CharArray>): Int {
         val rowInbound = grid.indices
         val colInbound = 0 until grid[0].size
@@ -49,9 +49,8 @@ fun main() {
                 var nextElevation = grid[currentPosition.row][currentPosition.col]
                 if (nextElevation == 'E') nextElevation = 'z'
                 if (
-                    currentElevation == nextElevation ||
                     currentElevation + 1 == nextElevation ||
-                    currentElevation > nextElevation
+                    currentElevation >= nextElevation
                 ) {
                     if (!visited.contains(currentPosition)) {
                         visited.add(currentPosition)
