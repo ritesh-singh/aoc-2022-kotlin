@@ -11,45 +11,22 @@ fun main() {
         val col: Int
     )
 
-    var sourceP: RowCol? = null
     var destP: RowCol? = null
-
     val sourceDestinations = mutableListOf<RowCol>()
 
-    fun List<String>.initMatrix(matrix: Array<CharArray>) {
+    fun List<String>.initMatrix(matrix: Array<CharArray>, part1: Boolean) {
         val rowSize = size
         val colSize = this[0].length
         for (row in 0 until rowSize) {
             for (col in 0 until colSize) {
                 matrix[row][col] = this[row][col]
-                if (matrix[row][col] == 'S') {
-                    sourceP = RowCol(row, col)
-                    sourceDestinations.add(RowCol(row, col))
-                }
-
-                if (matrix[row][col] == 'a'){
-                    sourceDestinations.add(RowCol(row, col))
-                }
-
-                if (matrix[row][col] == 'E') {
-                    destP = RowCol(row, col)
-                }
+                if (matrix[row][col] == 'S') sourceDestinations.add(RowCol(row, col))
+                if (matrix[row][col] == 'a' && !part1) sourceDestinations.add(RowCol(row, col))
+                if (matrix[row][col] == 'E') destP = RowCol(row, col)
             }
         }
     }
-
-
-    fun Array<CharArray>.printMatrix() {
-        for (i in 0 until this.size) {
-            for (j in 0 until this[0].size) {
-                print(this[i][j])
-                print(" ")
-            }
-            println()
-        }
-    }
-
-
+    
     fun findShortestPath(srcDest: RowCol, grid: Array<CharArray>): Int {
         val rowInbound = grid.indices
         val colInbound = 0 until grid[0].size
@@ -67,78 +44,26 @@ fun main() {
             var currentElevation = grid[nodeP.row][nodeP.col]
             if (currentElevation == 'S') currentElevation = 'a'
 
-            fun up() {
-                val up = RowCol(nodeP.row - 1, nodeP.col)
-                if (up.row !in rowInbound || up.col !in colInbound) return
-                var nextElevation = grid[up.row][up.col]
+            fun visitNeighbour(currentPosition:RowCol){
+                if (currentPosition.row !in rowInbound || currentPosition.col !in colInbound) return
+                var nextElevation = grid[currentPosition.row][currentPosition.col]
                 if (nextElevation == 'E') nextElevation = 'z'
                 if (
                     currentElevation == nextElevation ||
                     currentElevation + 1 == nextElevation ||
                     currentElevation > nextElevation
-                ){
-                    if (!visited.contains(up)){
-                        visited.add(up)
-                        queue.add(Pair(up, distance + 1))
+                ) {
+                    if (!visited.contains(currentPosition)) {
+                        visited.add(currentPosition)
+                        queue.add(Pair(currentPosition, distance + 1))
                     }
                 }
             }
 
-            fun down() {
-                val down = RowCol(nodeP.row + 1, nodeP.col)
-                if (down.row !in rowInbound || down.col !in colInbound) return
-                var nextElevation = grid[down.row][down.col]
-                if (nextElevation == 'E') nextElevation = 'z'
-                if (
-                    currentElevation == nextElevation ||
-                    currentElevation + 1 == nextElevation ||
-                    currentElevation > nextElevation
-                ){
-                    if (!visited.contains(down)){
-                        visited.add(down)
-                        queue.add(Pair(down, distance + 1))
-                    }
-                }
-            }
-
-            fun left() {
-                val left = RowCol(nodeP.row, nodeP.col - 1)
-                if (left.row !in rowInbound || left.col !in colInbound) return
-                var nextElevation = grid[left.row][left.col]
-                if (nextElevation == 'E') nextElevation = 'z'
-                if (
-                    currentElevation == nextElevation ||
-                    currentElevation + 1 == nextElevation ||
-                    currentElevation > nextElevation
-                ){
-                    if (!visited.contains(left)){
-                        visited.add(left)
-                        queue.add(Pair(left, distance + 1))
-                    }
-                }
-            }
-
-            fun right() {
-                val right = RowCol(nodeP.row, nodeP.col + 1)
-                if (right.row !in rowInbound || right.col !in colInbound) return
-                var nextElevation = grid[right.row][right.col]
-                if (nextElevation == 'E') nextElevation = 'z'
-                if (
-                    currentElevation == nextElevation ||
-                    currentElevation + 1 == nextElevation ||
-                    currentElevation > nextElevation
-                ){
-                    if (!visited.contains(right)){
-                        visited.add(right)
-                        queue.add(Pair(right, distance + 1))
-                    }
-                }
-            }
-
-            up()
-            down()
-            left()
-            right()
+            visitNeighbour(RowCol(nodeP.row - 1, nodeP.col))
+            visitNeighbour(RowCol(nodeP.row + 1, nodeP.col))
+            visitNeighbour(RowCol(nodeP.row, nodeP.col - 1))
+            visitNeighbour(RowCol(nodeP.row, nodeP.col + 1))
         }
 
         return -1
@@ -148,37 +73,29 @@ fun main() {
         val rowSize = input.size
         val colSize = input[0].length
 
+        sourceDestinations.clear()
         val grid = Array(rowSize) { CharArray(colSize) }
-        input.initMatrix(grid)
+        input.initMatrix(grid, true)
 
-        return findShortestPath(sourceP!!, grid)
+        return findShortestPath(sourceDestinations[0], grid)
     }
-
 
     fun part2(input: List<String>): Int {
         val rowSize = input.size
         val colSize = input[0].length
 
+        sourceDestinations.clear()
         val grid = Array(rowSize) { CharArray(colSize) }
-        input.initMatrix(grid)
+        input.initMatrix(grid, false)
 
-
-        var short = Int.MAX_VALUE
+        var shortPath = Int.MAX_VALUE
         sourceDestinations.forEach {
             val result = findShortestPath(it, grid)
-            if (result < short && result != -1){
-                short = result
-            }
+            if (result < shortPath && result != -1) shortPath = result
         }
 
-        return short
+        return shortPath
     }
-
-    val testInput = readInput("/day12/Day12_test")
-    println(part1(testInput))
-    println(part2(testInput))
-
-    println("----------------------------------------------")
 
     val input = readInput("/day12/Day12")
     println(part1(input))
