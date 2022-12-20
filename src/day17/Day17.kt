@@ -37,6 +37,7 @@ val fifthRock = listOf(
     Position(1 + 2, 3),
 )
 
+
 fun solve(input: List<String>, maxRocks:Long): Long {
     val jetPattern = input[0]
     var hotGasIndex = 0
@@ -61,7 +62,6 @@ fun solve(input: List<String>, maxRocks:Long): Long {
         }
         return end || right
     }
-
     fun leftPosBlocked(rock: List<Position>): Boolean {
         val end = rock.any { it.x - 1 < 0 }
         var left = false
@@ -76,7 +76,6 @@ fun solve(input: List<String>, maxRocks:Long): Long {
         }
         return end || left
     }
-
     fun downPosBlocked(rock: List<Position>): Boolean {
         var isBlocked = false
         for (blockPos in blockedPosition) {
@@ -87,7 +86,6 @@ fun solve(input: List<String>, maxRocks:Long): Long {
         }
         return isBlocked
     }
-
     fun List<Position>.move(gasIndex: Int): List<Position> {
         if (jetPattern[gasIndex] == '<' && !leftPosBlocked(this)) {
             return this.map { it.copy(x = it.x - 1, y = it.y) }
@@ -97,14 +95,33 @@ fun solve(input: List<String>, maxRocks:Long): Long {
         }
         return this
     }
-
     fun List<Position>.drop() = this.map { it.copy(x = it.x, y = it.y - 1) }
 
-    var totalRock = 1
+
+    var totalRock = 1L
     var rockIndex = 0
     var currentHeight = 0L
 
+    data class State(val jetIndex: Int, val rockType: Int, )
+    val seen = hashMapOf<State, Pair<Long, Long>>()
+
     while (totalRock < maxRocks) {
+
+        if (totalRock > 500) {
+            if (!seen.contains(State(jetIndex = hotGasIndex, rockType = rockIndex))) {
+                seen[State(hotGasIndex, rockIndex)] = Pair(totalRock, currentHeight)
+            } else {
+                val (prevTotalRock, prevHeight) = seen[State(hotGasIndex, rockIndex)]!!
+                val cyclePeriod = totalRock - prevTotalRock
+                if (totalRock % cyclePeriod == maxRocks % cyclePeriod) {
+                    val cycleHeight = currentHeight - prevHeight
+                    val remainingRocks = maxRocks - totalRock
+                    val cyclesRemaining = (remainingRocks / cyclePeriod) + 1
+                    return prevHeight + (cycleHeight * cyclesRemaining)
+                }
+            }
+        }
+
         var currentRock = rocks[rockIndex]
         currentRock = currentRock.map {
             it.copy(y = it.y + currentHeight)
@@ -127,7 +144,7 @@ fun solve(input: List<String>, maxRocks:Long): Long {
                 currentRock = currentRock.drop()
             } else {
                 blockedPosition.addAll(currentRock)
-                currentHeight = if (totalRock == 1) {
+                currentHeight = if (totalRock == 1L) {
                     1
                 } else {
                     (blockedPosition.groupBy { it.y }.count() - 1).toLong()
@@ -144,20 +161,13 @@ fun solve(input: List<String>, maxRocks:Long): Long {
 
 }
 
-
 fun main() {
 
     fun part1(input: List<String>): Long = solve(input, 2023)
 
-    fun part2(input: List<String>): Long = solve(input, 1000000000000)
-
-    val testInput = readInput("/day17/Day17_test")
-    println(part1(testInput))
-//    println(part2(testInput))
-
-    println("----------------------")
+    fun part2(input: List<String>): Long = solve(input, 1000000000001L)
 
     val input = readInput("/day17/Day17")
     println(part1(input))
-//    println(part2(input))
+    println(part2(input))
 }
