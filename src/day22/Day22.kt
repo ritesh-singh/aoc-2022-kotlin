@@ -2,6 +2,9 @@ package day22
 
 import readInput
 
+// Only part 1 is done
+// TODO -> Solve part 2
+
 fun List<CharArray>.printGrid() {
     for (row in 0 until this.size) {
         for (col in 0 until this[row].size) {
