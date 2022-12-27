@@ -1,12 +1,11 @@
 package day13
 
 import readInput
-import java.util.Stack
+import java.util.*
 
 sealed class Packet {
 
     data class ListsPacket(val packet: MutableList<Packet>) : Packet() {
-        fun isEmpty() = packet.isEmpty()
         override fun toString(): String {
             return packet.toString()
         }
@@ -68,39 +67,41 @@ fun main() {
         leftPacket: Packet.ListsPacket,
         rightPacket: Packet.ListsPacket,
     ): ReturnType {
-        while (leftPacket.packet.isNotEmpty() && rightPacket.packet.isNotEmpty()) {
-            val f = leftPacket.packet.first()
-            val s = rightPacket.packet.first()
+        var lCounter = 0
+        var rCounter = 0
+        while (lCounter < leftPacket.packet.size && rCounter < rightPacket.packet.size) {
+            val f = leftPacket.packet[lCounter]
+            val s = rightPacket.packet[rCounter]
             if (f is Packet.IntegerPacket && s is Packet.IntegerPacket) {
                 if (f.packet < s.packet) return ReturnType(rightOrder = true, breakOut = true)
                 if (f.packet > s.packet) return ReturnType(rightOrder = false, breakOut = true)
-                leftPacket.packet.removeFirst()
-                rightPacket.packet.removeFirst()
+                lCounter++
+                rCounter++
                 continue
             }
             if (f is Packet.IntegerPacket && s is Packet.ListsPacket) {
-                leftPacket.packet.removeFirst()
-                rightPacket.packet.removeFirst()
+                lCounter++
+                rCounter++
                 val pair = packetInRightOrder(f.toListPacket(), s)
                 if (pair.breakOut) return pair
             }
             if (f is Packet.ListsPacket && s is Packet.IntegerPacket) {
-                leftPacket.packet.removeFirst()
-                rightPacket.packet.removeFirst()
+                lCounter++
+                rCounter++
                 val pair = packetInRightOrder(f, s.toListPacket())
                 if (pair.breakOut) return pair
             }
             if (f is Packet.ListsPacket && s is Packet.ListsPacket) {
-                leftPacket.packet.removeFirst()
-                rightPacket.packet.removeFirst()
+                lCounter++
+                rCounter++
                 val pair = packetInRightOrder(f, s)
                 if (pair.breakOut) return pair
             }
         }
 
-        return if (leftPacket.packet.isEmpty() && rightPacket.packet.isNotEmpty()) {
+        return if (lCounter == leftPacket.packet.size && rCounter != rightPacket.packet.size) {
             ReturnType(rightOrder = true, breakOut = true)
-        } else if (leftPacket.packet.isNotEmpty()) {
+        } else if (lCounter != leftPacket.packet.size && rCounter == rightPacket.packet.size) {
             ReturnType(rightOrder = false, breakOut = true)
         } else {
             ReturnType(rightOrder = false, breakOut = false)
@@ -126,15 +127,31 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val list =
+            input.filter { it.isNotEmpty() }
+                .map {
+                    (buildPacket(it) as Packet.ListsPacket).packet.first() as Packet.ListsPacket
+                }.toMutableList()
+
+        val decoderKey1 = (buildPacket("[[2]]") as Packet.ListsPacket).packet.first() as Packet.ListsPacket
+        val decoderKey2 = (buildPacket("[[6]]") as Packet.ListsPacket).packet.first() as Packet.ListsPacket
+        list.add(decoderKey1)
+        list.add(decoderKey2)
+        Collections.sort(list, kotlin.Comparator { o1, o2 ->
+            val res = packetInRightOrder(o1,o2)
+            if (res.rightOrder) -1 else 1
+        })
+
+        return (list.indexOf(decoderKey1)+1) * (list.indexOf(decoderKey2)+1)
     }
 
     val testInput = readInput("/day13/Day13_test")
     println(part1(testInput))
-
+    println(part2(testInput))
     println("-----------------------------------------------")
 
     val input = readInput("/day13/Day13")
     println(part1(input))
+    println(part2(input))
 
 }
