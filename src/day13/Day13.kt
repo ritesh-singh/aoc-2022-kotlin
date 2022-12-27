@@ -61,20 +61,18 @@ fun main() {
         return this as Packet.ListsPacket
     }
 
-    data class ReturnType(val rightOrder: Boolean, val breakOut: Boolean)
-
     fun packetInRightOrder(
         leftPacket: Packet.ListsPacket,
         rightPacket: Packet.ListsPacket,
-    ): ReturnType {
+    ): Pair<Boolean,Boolean> {
         var lCounter = 0
         var rCounter = 0
         while (lCounter < leftPacket.packet.size && rCounter < rightPacket.packet.size) {
             val f = leftPacket.packet[lCounter]
             val s = rightPacket.packet[rCounter]
             if (f is Packet.IntegerPacket && s is Packet.IntegerPacket) {
-                if (f.packet < s.packet) return ReturnType(rightOrder = true, breakOut = true)
-                if (f.packet > s.packet) return ReturnType(rightOrder = false, breakOut = true)
+                if (f.packet < s.packet) return Pair(true, true)
+                if (f.packet > s.packet) return Pair(false,true)
                 lCounter++
                 rCounter++
                 continue
@@ -83,28 +81,28 @@ fun main() {
                 lCounter++
                 rCounter++
                 val pair = packetInRightOrder(f.toListPacket(), s)
-                if (pair.breakOut) return pair
+                if (pair.second) return pair
             }
             if (f is Packet.ListsPacket && s is Packet.IntegerPacket) {
                 lCounter++
                 rCounter++
                 val pair = packetInRightOrder(f, s.toListPacket())
-                if (pair.breakOut) return pair
+                if (pair.second) return pair
             }
             if (f is Packet.ListsPacket && s is Packet.ListsPacket) {
                 lCounter++
                 rCounter++
                 val pair = packetInRightOrder(f, s)
-                if (pair.breakOut) return pair
+                if (pair.second) return pair
             }
         }
 
         return if (lCounter == leftPacket.packet.size && rCounter != rightPacket.packet.size) {
-            ReturnType(rightOrder = true, breakOut = true)
+            Pair(true,true)
         } else if (lCounter != leftPacket.packet.size && rCounter == rightPacket.packet.size) {
-            ReturnType(rightOrder = false, breakOut = true)
+            Pair(false,true)
         } else {
-            ReturnType(rightOrder = false, breakOut = false)
+            Pair(false,false)
         }
     }
 
@@ -118,7 +116,7 @@ fun main() {
                     (left as Packet.ListsPacket).packet.first() as Packet.ListsPacket,
                     (right as Packet.ListsPacket).packet.first() as Packet.ListsPacket
                 )
-                if (rightOrder.rightOrder) {
+                if (rightOrder.first) {
                     sum += index + 1
                 }
             }
@@ -127,21 +125,19 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val list =
-            input.filter { it.isNotEmpty() }
-                .map {
-                    (buildPacket(it) as Packet.ListsPacket).packet.first() as Packet.ListsPacket
-                }.toMutableList()
-
         val decoderKey1 = (buildPacket("[[2]]") as Packet.ListsPacket).packet.first() as Packet.ListsPacket
         val decoderKey2 = (buildPacket("[[6]]") as Packet.ListsPacket).packet.first() as Packet.ListsPacket
-        list.add(decoderKey1)
-        list.add(decoderKey2)
-        Collections.sort(list, kotlin.Comparator { o1, o2 ->
-            val res = packetInRightOrder(o1,o2)
-            if (res.rightOrder) -1 else 1
-        })
-
+        val list = input.filter { it.isNotEmpty() }
+            .map {
+                (buildPacket(it) as Packet.ListsPacket).packet.first() as Packet.ListsPacket
+            }.toMutableList().apply {
+                add(decoderKey1)
+                add(decoderKey2)
+            }
+        list.sortWith { o1, o2 ->
+            val res = packetInRightOrder(o1, o2)
+            if (res.first) -1 else 1
+        }
         return (list.indexOf(decoderKey1)+1) * (list.indexOf(decoderKey2)+1)
     }
 
