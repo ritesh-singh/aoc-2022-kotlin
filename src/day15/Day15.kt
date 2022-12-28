@@ -60,18 +60,33 @@ fun main() {
         return set.size - 1 // -1, exclude beacon in the row
     }
 
-    fun part2(input: List<String>): Int {
-        return 0
+    fun part2(input: List<String>, limit: Int): Long {
+        val sensorBeacons = parseInput(input)
+        fun findPoint(): Point? {
+            for (x in 0..limit) {
+                var y = 0
+                while (y <= limit) {
+                    val sensor = sensorBeacons.find {
+                        (abs(it.sensor.x - x) + abs(it.sensor.y - y)) <= it.manhattanDistance
+                    } ?: return Point(x, y)
+                    y = sensor.sensor.y + sensor.manhattanDistance - abs(x - sensor.sensor.x) + 1
+                }
+            }
+            return null
+        }
+        return findPoint()?.let {
+            (it.x.toLong() * 4000000) + it.y.toLong()
+        } ?: error("No single point found")
     }
 
     val testInput = readInput("/day15/Day15_test")
-//    println(part1(testInput, 10))
-    println(part2(testInput))
+    println(part1(testInput, 10))
+    println(part2(testInput, 20))
 
     println("----------------------")
 
     val input = readInput("/day15/Day15")
-//    println(part1(input, 2000000))
-    println(part2(input))
+    println(part1(input, 2000000))
+    println(part2(input,4000000))
 
 }
