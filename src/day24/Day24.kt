@@ -14,21 +14,10 @@ private class Valley(lines: List<String>) {
     private var rowSize = lines.size
     private var colSize = lines[0].length
 
-    private fun Position.up() = this.copy(
-        row = if (this.row - 1 == 0) rowSize - 2 else this.row - 1
-    )
-
-    private fun Position.down() = this.copy(
-        row = if (this.row + 1 == rowSize - 1) 1 else this.row + 1
-    )
-
-    private fun Position.left() = this.copy(
-        col = if (this.col - 1 == 0) colSize - 2 else this.col - 1
-    )
-
-    private fun Position.right() = this.copy(
-        col = if (this.col + 1 == colSize - 1) 1 else this.col + 1
-    )
+    private fun Position.up() = this.copy(row = if (this.row - 1 == 0) rowSize - 2 else this.row - 1)
+    private fun Position.down() = this.copy(row = if (this.row + 1 == rowSize - 1) 1 else this.row + 1)
+    private fun Position.left() = this.copy(col = if (this.col - 1 == 0) colSize - 2 else this.col - 1)
+    private fun Position.right() = this.copy(col = if (this.col + 1 == colSize - 1) 1 else this.col + 1)
 
     private fun Position.nextBPos(type: Char): Position {
         return when {
@@ -82,7 +71,7 @@ private class Valley(lines: List<String>) {
         return this.row in 1..rowSize - 2 && this.col in 1..colSize - 2
     }
 
-    private fun HashSet<Position>.moveElve(elvePos: Position, endPos: Position): List<Position> {
+    private fun HashSet<Position>.moveElve(elvePos: Position, endPos: Position, goingDown: Boolean): List<Position> {
         val positions = mutableListOf<Position>()
         if (!this.contains(elvePos)) positions.add(elvePos) // don't move, if open
 
@@ -91,8 +80,8 @@ private class Valley(lines: List<String>) {
         val left = elvePos.copy(col = elvePos.col - 1)
         val right = elvePos.copy(col = elvePos.col + 1)
 
-        if (up.inBRange() && !this.contains(up)) positions.add(up)
-        if ((down.inBRange() || down == endPos) && !this.contains(down)) positions.add(down)
+        if ((up.inBRange() || (!goingDown && up == endPos)) && !this.contains(up)) positions.add(up)
+        if ((down.inBRange() || (goingDown && down == endPos)) && !this.contains(down)) positions.add(down)
         if (left.inBRange() && !this.contains(left)) positions.add(left)
         if (right.inBRange() && !this.contains(right)) positions.add(right)
 
@@ -155,16 +144,17 @@ private class Valley(lines: List<String>) {
         return hashMap
     }
 
-    fun solve(): Int {
-        val lcm = lcm(rowSize-2, colSize-2)
-
-        val blizzardMaps = blizzardMaps(lcm)
-
-        val end = Position(rowSize - 1, colSize - 2)
-
+    private fun findShortestPathInMinutes(
+        lcm: Int,
+        src: Position,
+        dst: Position,
+        bMap: HashMap<Int, HashSet<Position>>,
+        startTime: Int,
+        goingDown: Boolean,
+    ): Int {
         data class State(
-            val elvePos: Position = Position(0, 1),
-            val time: Int = 0,
+            val elvePos: Position = src,
+            val time: Int = startTime,
         )
 
         val visited = hashSetOf<State>()
@@ -175,16 +165,16 @@ private class Valley(lines: List<String>) {
         while (queue.isNotEmpty()) {
             val currState = queue.removeFirst()
 
-            if (currState.elvePos == end) {
+            if (currState.elvePos == dst) {
                 return currState.time
             }
 
             if (visited.contains(currState)) continue
             visited.add(currState)
 
-            val newMap = blizzardMaps[(currState.time + 1) % lcm]!!
+            val newMap = bMap[(currState.time + 1) % lcm]!!
 
-            newMap.moveElve(elvePos = currState.elvePos, endPos = end).forEach {
+            newMap.moveElve(elvePos = currState.elvePos, endPos = dst, goingDown = goingDown).forEach {
                 val newState = State(elvePos = it, time = currState.time + 1)
                 queue.addLast(newState)
             }
@@ -192,26 +182,51 @@ private class Valley(lines: List<String>) {
 
         return Int.MAX_VALUE
     }
+
+    fun solve(part1: Boolean): Int {
+        val lcm = lcm(rowSize - 2, colSize - 2)
+        val blizzardMaps = blizzardMaps(lcm)
+        val downTime = findShortestPathInMinutes(
+            lcm = lcm,
+            src = Position(0, 1),
+            dst = Position(rowSize - 1, colSize - 2),
+            bMap = blizzardMaps,
+            startTime = 0,
+            goingDown = true
+        )
+        if (part1) return downTime
+        val backTripTime = findShortestPathInMinutes(
+            lcm = lcm,
+            src = Position(rowSize - 1, colSize - 2),
+            dst = Position(0, 1),
+            bMap = blizzardMaps,
+            startTime = downTime,
+            goingDown = false
+        )
+        return findShortestPathInMinutes(
+            lcm = lcm,
+            src = Position(0, 1),
+            dst = Position(rowSize - 1, colSize - 2),
+            bMap = blizzardMaps,
+            startTime = backTripTime,
+            goingDown = true
+        )
+    }
 }
 
 fun main() {
 
     fun solve1(lines: List<String>): Int {
         val valley = Valley(lines = lines)
-        return valley.solve()
+        return valley.solve(part1 = true)
     }
 
     fun solve2(lines: List<String>): Int {
-        return 0
+        val valley = Valley(lines = lines)
+        return valley.solve(part1 = false)
     }
-
-    val testInput = readInput("/day24/Day24_test")
-    println(solve1(testInput))
-//    println(solve2(testInput))
-
-    println("--------------------------------------")
 
     val input = readInput("/day24/Day24")
     println(solve1(input))
-//    println(solve2(input))
+    println(solve2(input))
 }
